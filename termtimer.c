@@ -22,11 +22,15 @@ int main(int argc, char **argv) {
         int minutes = (remaining_seconds % 3600) / 60;
         int seconds = remaining_seconds % 60;
 
-        printf("%02d:%02d:%02d\n", hours, minutes, seconds);
+        printf("\r");
+        printf("%02d:%02d:%02d", hours, minutes, seconds);
+        fflush(stdout);
 
         sleep(1);
         remaining_seconds--;
     }
+
+    printf("\n");
 
     return 0;
 }
