@@ -2,6 +2,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+void show_cursor() {
+    printf("\x1b[?25h");
+}
+
+void hide_cursor() {
+    printf("\x1b[?25l");
+}
+
 int main(int argc, char **argv) {
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <seconds>\n", argv[0]);
@@ -15,6 +23,8 @@ int main(int argc, char **argv) {
         );
         return 1;
     }
+
+    hide_cursor();
 
     int remaining_seconds = total_seconds;
     while (remaining_seconds >= 0) {
@@ -31,6 +41,7 @@ int main(int argc, char **argv) {
     }
 
     printf("\n");
+    show_cursor();
 
     return 0;
 }
