@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -20,6 +21,12 @@ void display_timer(int remaining_seconds) {
     fflush(stdout);
 }
 
+void sigint_handler(int signo) {
+    printf("\n");
+    show_cursor();
+    exit(signo);
+}
+
 int main(int argc, char **argv) {
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <seconds>\n", argv[0]);
@@ -33,6 +40,8 @@ int main(int argc, char **argv) {
         );
         return 1;
     }
+
+    signal(SIGINT, sigint_handler);
 
     hide_cursor();
 
