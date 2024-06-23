@@ -10,6 +10,16 @@ void hide_cursor() {
     printf("\x1b[?25l");
 }
 
+void display_timer(int remaining_seconds) {
+    int hours = remaining_seconds / 3600;
+    int minutes = (remaining_seconds % 3600) / 60;
+    int seconds = remaining_seconds % 60;
+
+    printf("\r");
+    printf("%02d:%02d:%02d", hours, minutes, seconds);
+    fflush(stdout);
+}
+
 int main(int argc, char **argv) {
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <seconds>\n", argv[0]);
@@ -28,14 +38,7 @@ int main(int argc, char **argv) {
 
     int remaining_seconds = total_seconds;
     while (remaining_seconds >= 0) {
-        int hours = remaining_seconds / 3600;
-        int minutes = (remaining_seconds % 3600) / 60;
-        int seconds = remaining_seconds % 60;
-
-        printf("\r");
-        printf("%02d:%02d:%02d", hours, minutes, seconds);
-        fflush(stdout);
-
+        display_timer(remaining_seconds);
         sleep(1);
         remaining_seconds--;
     }
