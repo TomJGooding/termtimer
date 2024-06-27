@@ -25,7 +25,7 @@ void display_timer(int remaining_seconds) {
     timer_digits[6] = seconds / 10;
     timer_digits[7] = seconds % 10;
 
-    printf("\r");
+    // printf("\r");
     // printf("%02d:%02d:%02d", hours, minutes, seconds);
     for (size_t y = 0; y < TIMER_HEIGHT; y++) {
         for (size_t x = 0; x < TIMER_WIDTH; x++) {
@@ -33,6 +33,10 @@ void display_timer(int remaining_seconds) {
         }
     }
     fflush(stdout);
+}
+
+void clear_display() {
+    printf("\033[%dA\033[%dD", TIMER_HEIGHT - 1, TIMER_WIDTH);
 }
 
 void show_cursor() {
@@ -69,6 +73,9 @@ int main(int argc, char **argv) {
     int remaining_seconds = total_seconds;
     while (remaining_seconds >= 0) {
         display_timer(remaining_seconds);
+        if (remaining_seconds != 0) {
+            clear_display();
+        }
         sleep(1);
         remaining_seconds--;
     }
