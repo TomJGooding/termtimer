@@ -3,6 +3,42 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#define TIMER_HEIGHT 1
+#define TIMER_WIDTH 8
+
+void display_timer(int remaining_seconds) {
+    int hours = remaining_seconds / 3600;
+    int minutes = (remaining_seconds % 3600) / 60;
+    int seconds = remaining_seconds % 60;
+
+    char digit_chars[11] = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':'
+    };
+
+    int timer_digits[8];
+    timer_digits[0] = hours / 10;
+    timer_digits[1] = hours % 10;
+    timer_digits[2] = 10;  // colon
+    timer_digits[3] = minutes / 10;
+    timer_digits[4] = minutes % 10;
+    timer_digits[5] = 10;  // colon
+    timer_digits[6] = seconds / 10;
+    timer_digits[7] = seconds % 10;
+
+    // printf("\r");
+    // printf("%02d:%02d:%02d", hours, minutes, seconds);
+    for (size_t y = 0; y < TIMER_HEIGHT; y++) {
+        for (size_t x = 0; x < TIMER_WIDTH; x++) {
+            printf("%c", digit_chars[timer_digits[x]]);
+        }
+    }
+    fflush(stdout);
+}
+
+void clear_display() {
+    printf("\033[%dA\033[%dD", TIMER_HEIGHT - 1, TIMER_WIDTH);
+}
+
 void show_cursor() {
     printf("\x1b[?25h");
 }
@@ -10,17 +46,6 @@ void show_cursor() {
 void hide_cursor() {
     printf("\x1b[?25l");
 }
-
-void display_timer(int remaining_seconds) {
-    int hours = remaining_seconds / 3600;
-    int minutes = (remaining_seconds % 3600) / 60;
-    int seconds = remaining_seconds % 60;
-
-    printf("\r");
-    printf("%02d:%02d:%02d", hours, minutes, seconds);
-    fflush(stdout);
-}
-
 void sigint_handler(int signo) {
     printf("\n");
     show_cursor();
@@ -48,6 +73,9 @@ int main(int argc, char **argv) {
     int remaining_seconds = total_seconds;
     while (remaining_seconds >= 0) {
         display_timer(remaining_seconds);
+        if (remaining_seconds != 0) {
+            clear_display();
+        }
         sleep(1);
         remaining_seconds--;
     }
