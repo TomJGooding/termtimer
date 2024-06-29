@@ -3,19 +3,34 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define TIMER_HEIGHT 1
-#define TIMER_WIDTH 8
+#define DIGITS_COUNT 8  // HH:MM:SS
+
+#define DIGIT_ROWS 5
+#define DIGIT_COLS 3
+
+#define TIMER_HEIGHT DIGIT_ROWS
+#define TIMER_WIDTH (DIGIT_COLS * DIGITS_COUNT)
+
+const int DIGIT_BITMAPS[11] = {
+    31599,
+    4681,
+    29671,
+    29647,
+    23497,
+    31183,
+    31215,
+    29257,
+    31727,
+    31695,
+    1040,  // colon
+};
 
 void display_timer(int remaining_seconds) {
     int hours = remaining_seconds / 3600;
     int minutes = (remaining_seconds % 3600) / 60;
     int seconds = remaining_seconds % 60;
 
-    char digit_chars[11] = {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':'
-    };
-
-    int timer_digits[8];
+    int timer_digits[DIGITS_COUNT];
     timer_digits[0] = hours / 10;
     timer_digits[1] = hours % 10;
     timer_digits[2] = 10;  // colon
@@ -25,18 +40,30 @@ void display_timer(int remaining_seconds) {
     timer_digits[6] = seconds / 10;
     timer_digits[7] = seconds % 10;
 
-    // printf("\r");
-    // printf("%02d:%02d:%02d", hours, minutes, seconds);
-    for (size_t y = 0; y < TIMER_HEIGHT; y++) {
-        for (size_t x = 0; x < TIMER_WIDTH; x++) {
-            printf("%c", digit_chars[timer_digits[x]]);
+    for (int y = 0; y < TIMER_HEIGHT; y++) {
+        for (int x = 0; x < TIMER_WIDTH; x++) {
+            int i = x / DIGIT_COLS;
+            int digit_bitmap = DIGIT_BITMAPS[timer_digits[i]];
+            int dx = x % DIGIT_COLS;
+            int bit_pos = (DIGIT_ROWS - y) * DIGIT_COLS - dx - 1;
+            int bit = (digit_bitmap >> bit_pos) & 1;
+            if (bit) {
+                printf("██");
+            } else {
+                printf("  ");
+            }
+            // Add padding between digits
+            if (dx == 2 && (i % 3 == 0)) {
+                printf(" ");
+            }
         }
+        printf("\n");
     }
     fflush(stdout);
 }
 
 void clear_display() {
-    printf("\033[%dA\033[%dD", TIMER_HEIGHT - 1, TIMER_WIDTH);
+    printf("\x1b[%dA\x1b[%dD", TIMER_HEIGHT, TIMER_WIDTH);
 }
 
 void show_cursor() {
@@ -46,8 +73,8 @@ void show_cursor() {
 void hide_cursor() {
     printf("\x1b[?25l");
 }
+
 void sigint_handler(int signo) {
-    printf("\n");
     show_cursor();
     exit(signo);
 }
@@ -73,14 +100,13 @@ int main(int argc, char **argv) {
     int remaining_seconds = total_seconds;
     while (remaining_seconds >= 0) {
         display_timer(remaining_seconds);
-        if (remaining_seconds != 0) {
+        if (remaining_seconds) {
             clear_display();
         }
         sleep(1);
         remaining_seconds--;
     }
 
-    printf("\n");
     show_cursor();
 
     return 0;
