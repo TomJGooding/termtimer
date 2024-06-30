@@ -8,6 +8,8 @@
 #define DIGIT_COLS 3
 #define TOTAL_DIGIT_COLS (DIGIT_COLS * TIMER_DIGITS_COUNT)
 
+#define ALARM_DURATION 5
+
 const int DIGIT_BITMAPS[11] = {
     31599,
     4681,
@@ -57,6 +59,14 @@ void display_timer(int remaining_seconds) {
         printf("\n");
     }
     fflush(stdout);
+}
+
+void play_alarm() {
+    for (int i = 0; i < ALARM_DURATION; i++) {
+        printf("\a");
+        fflush(stdout);
+        sleep(1);
+    }
 }
 
 void cursor_to_start() {
@@ -109,6 +119,8 @@ int main(int argc, char **argv) {
         sleep(1);
         remaining_seconds--;
     }
+
+    play_alarm();
 
     show_cursor();
 
