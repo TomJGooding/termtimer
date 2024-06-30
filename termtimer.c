@@ -3,13 +3,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#define DIGITS_COUNT 8  // HH:MM:SS
-
+#define TIMER_DIGITS_COUNT 8  // HH:MM:SS
 #define DIGIT_ROWS 5
 #define DIGIT_COLS 3
-
-#define TIMER_HEIGHT DIGIT_ROWS
-#define TIMER_WIDTH (DIGIT_COLS * DIGITS_COUNT)
+#define TOTAL_DIGIT_COLS (DIGIT_COLS * TIMER_DIGITS_COUNT)
 
 const int DIGIT_BITMAPS[11] = {
     31599,
@@ -30,7 +27,7 @@ void display_timer(int remaining_seconds) {
     int minutes = (remaining_seconds % 3600) / 60;
     int seconds = remaining_seconds % 60;
 
-    int timer_digits[DIGITS_COUNT];
+    int timer_digits[TIMER_DIGITS_COUNT];
     timer_digits[0] = hours / 10;
     timer_digits[1] = hours % 10;
     timer_digits[2] = 10;  // colon
@@ -40,8 +37,8 @@ void display_timer(int remaining_seconds) {
     timer_digits[6] = seconds / 10;
     timer_digits[7] = seconds % 10;
 
-    for (int y = 0; y < TIMER_HEIGHT; y++) {
-        for (int x = 0; x < TIMER_WIDTH; x++) {
+    for (int y = 0; y < DIGIT_ROWS; y++) {
+        for (int x = 0; x < (TOTAL_DIGIT_COLS); x++) {
             int i = x / DIGIT_COLS;
             int digit_bitmap = DIGIT_BITMAPS[timer_digits[i]];
             int dx = x % DIGIT_COLS;
@@ -62,8 +59,9 @@ void display_timer(int remaining_seconds) {
     fflush(stdout);
 }
 
-void clear_display() {
-    printf("\x1b[%dA\x1b[%dD", TIMER_HEIGHT, TIMER_WIDTH);
+void cursor_to_start() {
+    printf("\x1b[%dA", DIGIT_ROWS);
+    printf("\r");
 }
 
 void show_cursor() {
@@ -101,7 +99,7 @@ int main(int argc, char **argv) {
     while (remaining_seconds >= 0) {
         display_timer(remaining_seconds);
         if (remaining_seconds) {
-            clear_display();
+            cursor_to_start();
         }
         sleep(1);
         remaining_seconds--;
