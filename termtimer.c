@@ -64,6 +64,10 @@ void cursor_to_start() {
     printf("\r");
 }
 
+void cursor_to_end() {
+    printf("\x1b[%dB", DIGIT_ROWS);
+}
+
 void show_cursor() {
     printf("\x1b[?25h");
 }
@@ -73,6 +77,7 @@ void hide_cursor() {
 }
 
 void sigint_handler(int signo) {
+    cursor_to_end();
     show_cursor();
     exit(signo);
 }
